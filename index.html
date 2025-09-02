@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ReviewIQ</title>
+  <title>ReviewIQ Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <header class="flex items-center p-4 bg-white shadow-md">
-    <img src="logo.png" alt="ReviewIQ Logo" class="h-12 mr-4" />
-    <h1 class="text-2xl font-bold">ReviewIQ</h1>
+<body class="bg-gray-100">
+  <header class="flex items-center p-4 bg-white shadow">
+    <img src="logo.png" alt="ReviewIQ Logo" class="h-10 mr-3" />
+    <h1 class="text-xl font-bold">ReviewIQ Dashboard</h1>
   </header>
 
-  <main class="max-w-2xl mx-auto mt-10 p-4 bg-white rounded-lg shadow">
-    <h2 class="text-xl font-semibold mb-4">Enter a Review</h2>
-    <textarea id="reviewInput" class="w-full p-2 border rounded mb-4" rows="4" placeholder="Paste your review here..."></textarea>
-    <button onclick="analyzeReview()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Analyze</button>
+  <main class="max-w-4xl mx-auto mt-6 p-4 bg-white rounded shadow">
+    <h2 class="text-lg font-semibold mb-2">Paste Multiple Reviews (one per line)</h2>
+    <textarea id="reviewsInput" class="w-full p-2 border rounded mb-4" rows="6" placeholder="Enter reviews..."></textarea>
+    <button onclick="analyzeReviews()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Analyze All</button>
 
-    <div id="result" class="mt-6 hidden">
-      <h3 class="text-lg font-semibold">Analysis Result:</h3>
-      <p id="sentiment" class="mt-2 text-gray-700"></p>
+    <div id="summary" class="mt-6 hidden">
+      <h3 class="text-lg font-semibold mb-2">Sentiment Summary</h3>
+      <canvas id="sentimentChart" width="400" height="200"></canvas>
     </div>
   </main>
 
