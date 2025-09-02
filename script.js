@@ -1,8 +1,8 @@
 // Firebase setup
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_FIREBASE_PROJECT.firebaseapp.com",
-  projectId: "YOUR_FIREBASE_PROJECT_ID",
+  apiKey: "AIzaSyA8M76nmVsQDhH8Yorg0Q1TyS9mZxnsJMQ",
+  authDomain: "review-2a24f.firebaseapp.com",
+  projectId: "review-2a24f"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -57,7 +57,7 @@ async function getSentiment(review) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": "Bearer YOUR_OPENAI_API_KEY"
+      "Authorization": "sk-proj-YSvJkEyW-VfZpoeXzPtK-mptzu_ffj_Wa5HesjXaC4JcwgbRc5jY328mgPS-UoKfT0I-EH12U7T3BlbkFJWOIWY9o6TD5LzVW22T2iVFKN0Z7yehLFYQZ1Hz60ng42X7-FUbFC4P0Z8_4Gf6G2KejX_Q1pEAY"
     },
     body: JSON.stringify({
       model: "gpt-3.5-turbo",
