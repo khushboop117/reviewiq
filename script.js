@@ -1,25 +1,55 @@
-async function analyzeReviews() {
-  const input = document.getElementById("reviewsInput").value;
-  const reviews = input.split("\n").filter(r => r.trim() !== "");
-  const summaryDiv = document.getElementById("summary");
-  const chartCanvas = document.getElementById("sentimentChart");
+// Firebase setup
+const firebaseConfig = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_FIREBASE_PROJECT.firebaseapp.com",
+  projectId: "YOUR_FIREBASE_PROJECT_ID",
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-  if (reviews.length === 0) {
-    alert("Please enter at least one review.");
-    return;
-  }
+function signup() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(user => alert("Signed up!"))
+    .catch(err => alert(err.message));
+}
 
-  let sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  auth.signInWithEmailAndPassword(email, password)
+    .then(user => alert("Logged in!"))
+    .catch(err => alert(err.message));
+}
+
+// CSV handling
+async function handleCSV() {
+  const file = document.getElementById("csvUpload").files[0];
+  Papa.parse(file, {
+    header: true,
+    complete: async function(results) {
+      const reviews = results.data.map(row => row.review).filter(Boolean);
+      localStorage.setItem("reviewData", JSON.stringify(reviews));
+      await analyzeMultipleReviews(reviews);
+    }
+  });
+}
+
+async function analyzeMultipleReviews(reviews) {
+  const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
+  document.getElementById("reviewCards").innerHTML = "";
 
   for (const review of reviews) {
     const sentiment = await getSentiment(review);
     if (sentiment.includes("positive")) sentimentCounts.positive++;
     else if (sentiment.includes("neutral")) sentimentCounts.neutral++;
     else sentimentCounts.negative++;
+    renderReviewCard(review, sentiment);
   }
 
-  summaryDiv.classList.remove("hidden");
-  renderChart(sentimentCounts, chartCanvas);
+  document.getElementById("summary").classList.remove("hidden");
+  renderChart(sentimentCounts);
 }
 
 async function getSentiment(review) {
@@ -44,8 +74,33 @@ async function getSentiment(review) {
   return data.choices[0].message.content.toLowerCase();
 }
 
-function renderChart(data, canvas) {
-  new Chart(canvas, {
+function renderReviewCard(review, sentiment) {
+  const card = document.createElement("div");
+  card.className = "p-4 bg-white shadow rounded";
+  card.setAttribute("data-sentiment", sentiment);
+  card.innerHTML = `
+    <p class="text-gray-700 mb-2">${review}</p>
+    <span class="text-sm font-semibold text-${sentimentColor(sentiment)}-600">${sentiment}</span>
+  `;
+  document.getElementById("reviewCards").appendChild(card);
+}
+
+function sentimentColor(sentiment) {
+  if (sentiment.includes("positive")) return "green";
+  if (sentiment.includes("neutral")) return "yellow";
+  return "red";
+}
+
+function filterReviews(type) {
+  const cards = document.querySelectorAll("#reviewCards > div");
+  cards.forEach(card => {
+    const sentiment = card.getAttribute("data-sentiment");
+    card.style.display = (type === "all" || sentiment.includes(type)) ? "block" : "none";
+  });
+}
+
+function renderChart(data) {
+  new Chart(document.getElementById("sentimentChart"), {
     type: "bar",
     data: {
       labels: ["Positive", "Neutral", "Negative"],
