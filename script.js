@@ -1,39 +1,65 @@
-async function analyzeReview() {
-  const review = document.getElementById("reviewInput").value;
-  const resultDiv = document.getElementById("result");
-  const sentimentText = document.getElementById("sentiment");
+async function analyzeReviews() {
+  const input = document.getElementById("reviewsInput").value;
+  const reviews = input.split("\n").filter(r => r.trim() !== "");
+  const summaryDiv = document.getElementById("summary");
+  const chartCanvas = document.getElementById("sentimentChart");
 
-  if (!review.trim()) {
-    alert("Please enter a review.");
+  if (reviews.length === 0) {
+    alert("Please enter at least one review.");
     return;
   }
 
-  sentimentText.textContent = "Analyzing...";
-  resultDiv.classList.remove("hidden");
+  let sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
 
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "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"
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "user",
-            content: `Analyze the sentiment of this review and summarize it in one sentence: "${review}"`
-          }
-        ]
-      })
-    });
-
-    const data = await response.json();
-    const analysis = data.choices[0].message.content;
-    sentimentText.textContent = analysis;
-  } catch (error) {
-    sentimentText.textContent = "Error analyzing review.";
-    console.error(error);
+  for (const review of reviews) {
+    const sentiment = await getSentiment(review);
+    if (sentiment.includes("positive")) sentimentCounts.positive++;
+    else if (sentiment.includes("neutral")) sentimentCounts.neutral++;
+    else sentimentCounts.negative++;
   }
+
+  summaryDiv.classList.remove("hidden");
+  renderChart(sentimentCounts, chartCanvas);
+}
+
+async function getSentiment(review) {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer YOUR_OPENAI_API_KEY"
+    },
+    body: JSON.stringify({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "user",
+          content: `Classify this review as positive, neutral, or negative: "${review}"`
+        }
+      ]
+    })
+  });
+
+  const data = await response.json();
+  return data.choices[0].message.content.toLowerCase();
+}
+
+function renderChart(data, canvas) {
+  new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: ["Positive", "Neutral", "Negative"],
+      datasets: [{
+        label: "Review Sentiment",
+        data: [data.positive, data.neutral, data.negative],
+        backgroundColor: ["#34D399", "#FBBF24", "#F87171"]
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
 }
