@@ -4,17 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ReviewIQ</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <div class="container">
-    <h1>ReviewIQ</h1>
-    <p>Paste your customer reviews below:</p>
-    <textarea id="review-input" rows="6" placeholder="Type reviews here..."></textarea>
-    <button onclick="analyzeReviews()">Analyze</button>
-    <canvas id="sentimentChart"></canvas>
-  </div>
+<body class="bg-gray-50 text-gray-800">
+  <header class="flex items-center p-4 bg-white shadow-md">
+    <img src="logo.png" alt="ReviewIQ Logo" class="h-12 mr-4" />
+    <h1 class="text-2xl font-bold">ReviewIQ</h1>
+  </header>
+
+  <main class="max-w-2xl mx-auto mt-10 p-4 bg-white rounded-lg shadow">
+    <h2 class="text-xl font-semibold mb-4">Enter a Review</h2>
+    <textarea id="reviewInput" class="w-full p-2 border rounded mb-4" rows="4" placeholder="Paste your review here..."></textarea>
+    <button onclick="analyzeReview()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Analyze</button>
+
+    <div id="result" class="mt-6 hidden">
+      <h3 class="text-lg font-semibold">Analysis Result:</h3>
+      <p id="sentiment" class="mt-2 text-gray-700"></p>
+    </div>
+  </main>
+
   <script src="script.js"></script>
 </body>
 </html>
-
