@@ -1,29 +1,39 @@
-function analyzeReviews() {
-  const input = document.getElementById('review-input').value;
-  const reviews = input.split('\n').filter(r => r.trim() !== '');
+async function analyzeReview() {
+  const review = document.getElementById("reviewInput").value;
+  const resultDiv = document.getElementById("result");
+  const sentimentText = document.getElementById("sentiment");
 
-  let positive = 0, neutral = 0, negative = 0;
+  if (!review.trim()) {
+    alert("Please enter a review.");
+    return;
+  }
 
-  reviews.forEach(review => {
-    const text = review.toLowerCase();
-    if (text.includes('great') || text.includes('love')) {
-      positive++;
-    } else if (text.includes('bad') || text.includes('hate')) {
-      negative++;
-    } else {
-      neutral++;
-    }
-  });
+  sentimentText.textContent = "Analyzing...";
+  resultDiv.classList.remove("hidden");
 
-  const ctx = document.getElementById('sentimentChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Positive', 'Neutral', 'Negative'],
-      datasets: [{
-        data: [positive, neutral, negative],
-        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
-      }]
-    }
-  });
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "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"
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "user",
+            content: `Analyze the sentiment of this review and summarize it in one sentence: "${review}"`
+          }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    const analysis = data.choices[0].message.content;
+    sentimentText.textContent = analysis;
+  } catch (error) {
+    sentimentText.textContent = "Error analyzing review.";
+    console.error(error);
+  }
 }
